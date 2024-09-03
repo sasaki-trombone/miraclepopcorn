@@ -1,4 +1,6 @@
-import type { MetaFunction } from "@remix-run/cloudflare";
+import type { LoaderFunction, LoaderFunctionArgs, MetaFunction } from "@remix-run/cloudflare";
+import { useLoaderData } from "@remix-run/react";
+import { microcmsClient } from "~/libs/microcmsClient.server";
 
 export const meta: MetaFunction = () => {
   return [
@@ -10,30 +12,25 @@ export const meta: MetaFunction = () => {
   ];
 };
 
+interface Env {
+  MICROCMS_SERVICE_DOMAIN: string;
+  MICROCMS_API_KEY: string;
+}
+
+export const loader:LoaderFunction = async ({context}: LoaderFunctionArgs) => {
+  const env = context.cloudflare.env as Env;
+  const data = await microcmsClient({serviceDomain: env.MICROCMS_SERVICE_DOMAIN, apiKey: env.MICROCMS_API_KEY}).get({endpoint: 'articles'});
+  return data;
+}
+
 export default function Index() {
+  const data = useLoaderData();
   return (
     <div className="font-sans p-4">
-      <h1 className="text-3xl">Welcome to Remix on Cloudflare</h1>
+      <h1 className="text-3xl">miracle popcorn</h1>
       <ul className="list-disc mt-4 pl-6 space-y-2">
         <li>
-          <a
-            className="text-blue-700 underline visited:text-purple-900"
-            target="_blank"
-            href="https://remix.run/docs"
-            rel="noreferrer"
-          >
-            Remix Docs
-          </a>
-        </li>
-        <li>
-          <a
-            className="text-blue-700 underline visited:text-purple-900"
-            target="_blank"
-            href="https://developers.cloudflare.com/pages/framework-guides/deploy-a-remix-site/"
-            rel="noreferrer"
-          >
-            Cloudflare Pages Docs - Remix guide
-          </a>
+          {data.contents.map((article: any) => <div key={article.id}>{article.title}</div>)}
         </li>
       </ul>
     </div>

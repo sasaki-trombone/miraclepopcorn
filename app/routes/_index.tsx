@@ -19,7 +19,7 @@ interface Env {
 
 export const loader:LoaderFunction = async ({context}: LoaderFunctionArgs) => {
   const env = context.cloudflare.env as Env;
-  const data = await microcmsClient({serviceDomain: env.MICROCMS_SERVICE_DOMAIN, apiKey: env.MICROCMS_API_KEY}).get({endpoint: 'articles'});
+  const data = await microcmsClient({serviceDomain: env.MICROCMS_SERVICE_DOMAIN, apiKey: env.MICROCMS_API_KEY}).get({endpoint: 'articles', queries: {fields: 'id,title'}});
   return data;
 }
 
